@@ -1,0 +1,67 @@
+# Analiza nowości: TiRex / Toto + wykrywanie anomalii
+
+Punkt 1 na konsultację 1 (23.10.2026). Wyszukiwanie z 21.10.2026: arXiv, Google Scholar (ręcznie), OpenAlex, wyszukiwarka internetowa, GitHub.
+
+## Krótka odpowiedź
+
+Nie znaleźliśmy opublikowanej pracy o dokładnie takim układzie eksperymentów jak nasz. Istnieją jednak bliskie prace, dlatego zawężamy deklarację nowości:
+
+- **TiRex-2**: w naszym wyszukiwaniu nie znaleźliśmy opublikowanej oceny w wykrywaniu anomalii.
+- **Pierwszy TiRex**: znaleźliśmy jedną pracę o wykrywaniu anomalii (IBM), na innych danych.
+- **Toto / Toto 2.0**: używane do wykrywania anomalii w danych z wierceń, sond kosmicznych i jednego klastra pamięci masowej; nie znaleźliśmy porównania z LSTM/GRU trenowanymi dla każdego serwera ani badania zimnego startu (cold start).
+
+## Najbliższe prace
+
+| Praca | Co zrobili | Różnica względem nas |
+|---|---|---|
+| Martinez Gil i in. (IBM), ICLR 2026 · [arXiv](https://arxiv.org/abs/2604.20122) | Użyli wstępnie wytrenowanych modeli prognozujących (pierwszy TiRex, Chronos-Bolt, TTM) bez dodatkowego trenowania i wykrywali anomalie na podstawie błędów prognozy. Zaproponowali W1-ACAS, adaptacyjną metodę kalibracji konformalnej, która zamienia błędy prognozy w decyzje o anomaliach i ma na celu kontrolę odsetka fałszywych alarmów przy zmieniających się danych. Porównali ją z metodami klasycznymi i trenowanymi modelami głębokimi (CNN, USAD, OmniAnomaly) na zbiorach TSB-AD i uzyskali najlepsze wyniki w metrykach zależnych od progu. | Ich głównym wkładem jest metoda wyboru progu, a naszym — porównanie modeli zero-shot z LSTM/GRU trenowanymi dla każdego serwera, z uwzględnieniem zimnego startu. Nie używają TiRex-2, Toto ani SMD. Ich najlepsze wyniki F1 korzystają z point-adjust i progu wybranego na etykietach testowych, czego unikamy. |
+| Yum, 2026, raport techniczny · [PDF](https://seoyoonyum.github.io/assets/pdf/papers/tsfm_ad_technical_report.pdf) | Sprawdził, czy zamrożony model Toto 2.0 (313M) wykrywa anomalie w infrastrukturze bez trenowania pod zadanie, na produkcyjnym klastrze Ceph i potoku przyjmującym klatki (DigitalPath). Toto dobrze prognozował normalne opóźnienia, ale nie przewidywał wiarygodnie przyszłych awarii dysków (OSD). Wykrył większość trwających zakłóceń (39/39 w Ceph i 32/34 w DigitalPath, zdarzenia zastępcze), choć precyzja alarmów była niska (4–14%). Na TSB-AD-M prosty baseline przewyższył reszty prognozy Toto (VUS-PR 0,29 wobec 0,14). Autor wnioskuje, że modele fundamentowe przydają się jako pierwszy sygnał anomalii, ale nie zastąpią reguł monitoringu. | Raport jednego autora, bez recenzji, na danych operacyjnych z etykietami zastępczymi wyprowadzonymi z monitorowanych sygnałów, co ogranicza niezależną weryfikację. W odróżnieniu od nas nie porównuje systematycznie modeli zero-shot z LSTM/GRU trenowanymi dla serwera ani nie bada, jak jakość wykrywania zależy od ilości danych treningowych (zimny start). Eksperyment na TSB-AD-M był wykonany offline i korzystał z przyszłych wartości, więc nie mówi nic o działaniu online. |
+| Sengupta i in., warsztat ICML 2026 · [strona](https://icml.cc/virtual/2026/71509) | Dotrenowali Chronos-2 i pierwszy Toto na oznaczonych anomaliach z wierceń i porównali je z małymi modelami CNN. Najlepszy był Chronos-2 (F1 0,52 / 0,69), Toto przegrał ze zwykłym CNN, a CNN-FNO o 5M parametrów prawie dorównał Chronos-2 dla momentu obrotowego przy ok. 10× krótszym czasie wnioskowania. | Trenowanie nadzorowane na oznaczonych anomaliach, a nie zero-shot; dane nie są serwerowe, brak TiRex i LSTM/GRU. Ich test z ilością danych pyta, ile etykiet potrzebuje model fundamentowy, a nasz zimny start — ile normalnej historii potrzebują LSTM/GRU, by dogonić model zero-shot. |
+| Olive i in., warsztat CVPR 2026 (AI4Space) · [lista](https://openaccess.thecvf.com/CVPR2026_workshops/AI4Space) | Zastosowali MOIRAI, pierwszy Toto, Chronos i TimesFM do telemetrii sondy marsjańskiej z 27 wstrzykniętymi syntetycznymi anomaliami, w trybie zero-shot oraz z dotrenowaniem MOIRAI i Chronos. W trybie zero-shot najlepszy był Toto (F1 0,752), ale mały dotrenowany MOIRAI go przewyższył (0,859) przy znacznie krótszym czasie wnioskowania (5 s wobec 123 s na 1000 punktów). Przy krótkim kontekście modele kopiowały ostatnie wartości i przeoczały anomalie, więc długi kontekst był kluczowy. | Syntetyczne anomalie, mały zbiór testowy i łagodne F1 (każde nakładanie się liczy się jako trafienie). Motywują pracę zimnym startem, ale nie zmieniają ilości historii treningowej, by sprawdzić, kiedy lokalne trenowanie się opłaca. Brak TiRex-2, Toto 2.0, trenowanych LSTM/GRU i prostych baseline'ów; bierzemy stąd potrzebę długiego kontekstu i wczesnego pomiaru szybkości Toto. |
+| Zhu i in., ICLR 2026 · [strona](https://mlanthology.org/iclr/2026/zhu2026iclr-foundation/) | Uruchomili pięć rodzin modeli fundamentowych (MOMENT, Chronos-Bolt, TimesFM, Time-MoE, TSPulse) w trybie zero-shot na 350 jednowymiarowych szeregach TSB-AD-U, przy różnych rozmiarach i długościach kontekstu. Standardowe oceny oparte na błędzie prognozy i rekonstrukcji nie były istotnie lepsze od dwóch jednolinijkowych baseline'ów: prognozy na jeden krok dostosowują się do trwającej anomalii, a oceny rekonstrukcji w dużej mierze odzwierciedlają lokalną wariancję. Dłuższe horyzonty prognozy poprawiają wykrywanie długotrwałych anomalii, ale zmniejszają czułość na krótkie. | Głównie ocena jednowymiarowa, a Toto 1.0 i Chronos-2 sprawdzono na danych wielowymiarowych tylko jakościowo. Brak TiRex-2 i Toto 2.0 oraz porównania z lokalnie trenowanymi LSTM/GRU przy zimnym starcie. Przejmujemy ich baseline'y (wariancja w oknie przesuwnym i Last-3) i wybieramy horyzont prognozy z uwzględnieniem ich wniosków. |
+| Qiu i in. (TAB), PVLDB 2025 · [PDF](https://www.vldb.org/pvldb/vol18/p2775-hu.pdf) | Ocenili 40 metod na 29 wielowymiarowych zbiorach danych (w tym SMD) i 46 metod na 1635 szeregach jednowymiarowych, obejmując klasyczne ML, uczenie głębokie (m.in. LSTM, TranAD) i starsze modele wstępnie wytrenowane (TimesFM, Chronos, MOMENT) w trybach zero-shot, few-shot i full-shot, bez point-adjust. W ich eksperymentach modele wstępnie wytrenowane w trybie zero-shot były wyraźnie słabsze od dotrenowanych, żadna metoda nie dominowała dla wszystkich typów anomalii, a proste metody (KNN, KMeans) należały do najlepszych. Dokładność trzeba rozpatrywać łącznie z czasem trenowania, czasem wnioskowania i zużyciem pamięci. | TAB to szeroki benchmark, a nie badanie konkretnego punktu przecięcia przy zimnym starcie między zamrożonymi modelami fundamentowymi a lekkimi modelami trenowanymi osobno dla każdego serwera. Nasze badanie zmienia ilość dostępnej normalnej historii treningowej (10–100%) dla LSTM/GRU i porównuje je z TiRex-2, Toto 2.0 i prostymi baseline'ami na SMD. Używamy też progów kalibrowanych bez etykiet testowych, podczas gdy TAB raportuje najlepszy wynik spośród kilku sprawdzonych progów. |
+| Varverakis i in., Future Internet 2026 · [MDPI](https://www.mdpi.com/1999-5903/18/10/550) | Ocenili Chronos-2, TimesFM-2.5 i pierwszy TiRex w trybie zero-shot przy losowych brakach danych, długich przerwach i wstrzykniętych skokach na jednowymiarowych danych z czujników przemysłowych (SKAB), mierząc RMSE prognozy i pokrycie przedziałów. Losowe braki i rzadkie skoki zmieniały prognozy o mniej niż 3%, a długie przerwy powodowały znacznie większe błędy, zwłaszcza dla TimesFM-2.5. | Tylko odporność prognozowania, nie wykrywanie anomalii; brak TiRex-2, Toto, SMD, trenowanych LSTM/GRU i zimnego startu. Pokazuje, że wcześniejszy skok prawie nie zmienia prognozy, co ogranicza fałszywe alarmy po anomalii, ale nie mówi, czy sama anomalia zostanie wykryta. |
+
+## Deklaracja nowości
+
+> Według naszej wiedzy nikt dotąd nie zmierzył, ile normalnej historii potrzebują LSTM/GRU trenowane dla każdego serwera, aby dogonić modele fundamentowe zero-shot na metrykach serwerowych (SMD). Badamy ten punkt przecięcia przy zimnym starcie z użyciem **TiRex-2**, który nie był jeszcze oceniany w wykrywaniu anomalii, oraz **Toto 2.0**, razem z prostymi baseline'ami, progami bez etykiet i fałszywymi alarmami. Wcześniejsze prace porównywały starsze modele wstępnie wytrenowane z trenowanymi bez zmiany ilości historii treningowej (TAB, 2025; IBM, 2026), sprawdzały pierwszy Toto tylko jakościowo (Zhu, 2026) albo stosowały Toto do innych danych: wierceń, sond kosmicznych i jednego klastra pamięci masowej (Sengupta, Olive, Yum, 2026).
+
+## Co to oznacza dla planu
+
+**Cel.** Ustalić, w jakich warunkach modele fundamentowe zero-shot dają praktyczną przewagę nad LSTM/GRU trenowanymi dla każdego serwera oraz nad prostymi metodami statystycznymi, biorąc pod uwagę ilość dostępnej historii, jakość wykrywania i koszt obliczeniowy.
+
+Punkty oznaczone *dobra praktyka* nie wynikają z tych prac, ale są potrzebne do uczciwego porównania.
+
+### Główne eksperymenty
+
+1. **Modele:** TiRex-2, Toto 2.0 (podać dokładny rozmiar checkpointu), LSTM, GRU. Baseline'y: Isolation Forest, Last-3 i wariancja w oknie przesuwnym. Bez dodatkowych modeli, dopóki rdzeń nie jest gotowy. (Zhu: modele fundamentowe nie są lepsze od jednolinijkowców; TAB: KNN/KMeans wśród najlepszych; Yum, Olive: wyniki zależą od rozmiaru modelu)
+2. **Zimny start:** LSTM/GRU trenowane na pierwszych kolejnych 10 / 25 / 50 / 100% części treningowej (nie na losowych punktach, aby odwzorować serwer gromadzący historię), porównane z modelami zero-shot. Dla każdej części podawać bezwzględną liczbę punktów i dni. Z góry zdefiniować punkt przecięcia, np. najmniejszą część, przy której średni VUS-PR LSTM/GRU nie jest niższy niż modelu zero-shot, z rozrzutem między ziarnami losowymi. To jest nasza nowość. (Olive podaje zimny start jako motywację, ale go nie mierzy; few-shot w TAB dotrenowuje zamiast tego model wstępnie wytrenowany)
+3. **Długi kontekst** dla TiRex-2 i Toto, zaczynając od 512–1024 punktów, jeśli model to obsługuje: przy krótkim kontekście modele kopiują ostatnie wartości i przeoczają anomalie. Nie zakładać, że dłuższy kontekst zawsze pomaga. (Olive, Zhu)
+4. **Ten sam horyzont prognozy dla wszystkich modeli.** Prognoza na jeden krok przeocza długie anomalie, długi horyzont — krótkie. (Zhu)
+5. **Z góry ustalić, jak 38 metryk serwera łączy się w jedną ocenę anomalii**, np. średni błąd prognozy po metrykach. (Zhu, Olive używają średniego błędu kwadratowego po kanałach)
+
+### Uczciwa ocena
+
+6. **Próg tylko z danych treningowych lub walidacyjnych, nigdy z etykiet testowych, z tym samym protokołem dla wszystkich modeli, także zero-shot.** „Zero-shot” oznacza zamrożone wagi, a nie brak kalibracji. Nieoznaczone anomalie w części treningowej SMD mogą zaburzyć próg; opisać to jako ograniczenie. (Yum; IBM i TAB wybierali progi na etykietach testowych, czego unikamy)
+7. **Bez point-adjust** i bez zasady „każde nakładanie się liczy się jako trafienie”. (IBM, Olive ich używają)
+8. **Statystyki normalizacji tylko z części treningowej.** (*dobra praktyka*)
+9. **Scenariusz online, bez zaglądania w przyszłość:** model nigdy nie widzi wartości po punkcie, który ocenia. (Yum: jego test na TSB-AD-M i uruchomienie TimeRCD korzystały z przyszłych wartości, więc te liczby nie są wiarygodne)
+10. **Liczyć alarmy jako zdarzenia** i raportować odsetek alarmów odpowiadających prawdziwej anomalii, a nie tylko liczbę alarmów na dobę lub na 1000 punktów. Z góry ustalić regułę łączenia sąsiednich punktów alarmowych i kryterium dopasowania alarmu do anomalii. (Yum: 1,5 alarmu na dobę, ale tylko 4–14% trafnych)
+11. **Kilka ziaren losowych (seed) dla LSTM/GRU**, raportować średnią i rozrzut. (*dobra praktyka*)
+
+### Koszt
+
+12. **Mierzyć czas trenowania, czas wnioskowania i pamięć.** Zmierzyć szybkość Toto już w pilotażu: może być ponad 20× wolniejszy od innych modeli. (Olive: 123 s wobec 5 s na 1000 punktów; TAB: dokładność trzeba rozpatrywać łącznie z czasem i pamięcią)
+
+### Analiza i raport
+
+13. **Patrzeć na wyniki dla poszczególnych serwerów, a nie tylko na średnią**, i porównać błędy prognozy w oknach normalnych i anomalnych, aby wyjaśnić, *dlaczego* model działa lub zawodzi, w tym czy Toto przyzwyczaja się do długich anomalii. (Zhu: zagregowane metryki ukrywają rzeczywiste zachowanie; Yum: Toto dostosowuje się do utrzymującego się nowego poziomu)
+14. **Nie twierdzić, że jesteśmy pierwsi** w zastosowaniu modeli fundamentowych do wykrywania anomalii ani w porównaniu ich z modelami trenowanymi. Nasza nowość jest węższa: od kiedy LSTM/GRU trenowane dla serwera stają się konkurencyjne wobec modeli zero-shot z 2026 roku na metrykach serwerowych. (IBM, TAB, Sengupta już porównują modele wstępnie wytrenowane i trenowane)
+15. **Ograniczenia:** jeden główny zbiór danych, wątpliwe etykiety w części SMD, możliwa obecność SMD w danych pretreningowych modeli. Sprawdzić w dokumentacji TiRex-2 i Toto 2.0, na jakich zbiorach były pretrenowane; jeśli użyto SMD, wyniki na nim nie są w pełni zero-shot. (Zhu oznaczają dwa jednowymiarowe szeregi pochodzące z SMD w TSB-AD-U, o numerach 68 i 74, jako źle oznaczone, i sprawdzili zanieczyszczenie danych pretreningowych dla MOMENT)
+16. **Wynik negatywny to też wynik.** (Zhu, Yum, TAB: modele fundamentowe często przegrywają z prostymi metodami)
+
+### Tylko jeśli starczy czasu
+
+- Kilka horyzontów prognozy, krótki i długi, z wyborem maksymalnego błędu. (Zhu)
+- Agregacja błędów po 38 metrykach przez średnią lub maksimum: średnia może ukryć anomalię widoczną tylko w jednej metryce. Tanie, bo błędy dla poszczególnych metryk są te same.
+- Drugi zbiór danych: OS-Metrics, PSM lub Exathlon.

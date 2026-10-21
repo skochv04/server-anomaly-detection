@@ -30,6 +30,7 @@ server metrics → model forecast → forecast error → anomaly score → thres
 | Toto 2.0 (small) | zero-shot, observability-pretrained |
 
 **Data:** SMD (Server Machine Dataset), cleaned version from [TSB-AD](https://github.com/TheDatumOrg/TSB-AD).
+
 **Main metric:** VUS-PR; plus F1 without point-adjust and false alarms at a label-free threshold.
 
 ### Two rules for a fair comparison
@@ -38,8 +39,6 @@ server metrics → model forecast → forecast error → anomaly score → thres
 2. All models forecast the same number of steps ahead.
 
 ## Plan
-
-We go step by step and do each stage together. Tasks within a stage are split as convenient, and both of us finish the stage before moving on to the next one.
 
 | When | To do | To show |
 |---|---|---|
