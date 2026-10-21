@@ -24,11 +24,7 @@ Item 1 of the plan for consultation 1 (23.10.2026). Search done on 21.10.2026 (w
 
 ## Novelty statement
 
-> To our knowledge, **TiRex-2** and **Toto 2.0** have not yet been evaluated for anomaly detection, and on server metrics (SMD) no modern pretrained model has been compared with LSTM/GRU trained separately for each server, taking cold start and false alarms into account. The closest work (IBM, 2026) used the first version of TiRex on other datasets.
-
-Polish version for the consultation:
-
-> Według naszej wiedzy modele **TiRex-2** i **Toto 2.0** nie były dotąd oceniane w wykrywaniu anomalii, a na metrykach serwerowych (SMD) nikt nie porównał nowoczesnych modeli pretrenowanych z LSTM/GRU trenowanymi osobno dla każdego serwera, z uwzględnieniem zimnego startu i fałszywych alarmów. Najbliższa praca (IBM, 2026) użyła pierwszej wersji TiRex na innych zbiorach danych.
+> **TiRex-2** and **Toto 2.0** have not yet been evaluated for anomaly detection, and on server metrics (SMD) no modern pretrained model has been compared with LSTM/GRU trained separately for each server, taking cold start and false alarms into account. The closest work (IBM, 2026) used the first version of TiRex on other datasets.
 
 ## Limitations of the search
 
