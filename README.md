@@ -32,12 +32,31 @@ server metrics → model forecast → forecast error → anomaly score → thres
 **Data:** SMD (Server Machine Dataset), cleaned version from [TSB-AD](https://github.com/TheDatumOrg/TSB-AD).
 **Main metric:** VUS-PR; plus F1 without point-adjust and false alarms at a label-free threshold.
 
+### Two rules for a fair comparison
+
+1. The alarm threshold is chosen on the train part only, never on test labels.
+2. All models forecast the same number of steps ahead.
+
+## Plan
+
+We go step by step and do each stage together. Tasks within a stage are split as convenient, and both of us finish the stage before moving on to the next one.
+
+| When | To do | To show |
+|---|---|---|
+| **23.10** | Novelty search: TiRex / Toto + anomaly detection (results). Research questions and plan | Plan and research questions |
+| **06.11** | Install TSB-AD, run Isolation Forest and TiRex-2 on **one** server | First results on one server |
+| **27.11** | Add LSTM, GRU, Toto. Run everything on **3–5** servers | First comparison table |
+| **11.12** | Run everything on **all** servers. Cold start: train LSTM/GRU on 10 / 25 / 50 / 100% of the data. Compare Toto vs. TiRex-2 and count false alarms | Full results and plots |
+| **08.01** | Finish the report (draft by ~20.12) | Submission |
+
+**Optional**, only if everything is ready by 11.12: a second dataset (OS-Metrics), Chronos-2 as a third pretrained model, fine-tuning, a publication.
+
 ## Status
 
 Consultation 1 (23.10.2026): plan and novelty check.
 
 - [x] Novelty search: has anyone evaluated TiRex / Toto for anomaly detection? → [`docs/novelty-search.md`](docs/novelty-search.md)
-- [x] Project plan → [`docs/plan.md`](docs/plan.md)
+- [x] Project plan (above)
 
 ## Repository structure
 
