@@ -45,7 +45,6 @@ Consultation 1 (23.10.2026): plan and novelty check.
 server-anomaly-detection/
 ├── README.md
 └── docs/
-    ├── plan.md             # project plan, experiments, timeline
     └── novelty-search.md   # has anyone done this already?
 ```
 
