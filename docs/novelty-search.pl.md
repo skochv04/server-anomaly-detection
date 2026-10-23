@@ -50,8 +50,8 @@ Punkty oznaczone *dobra praktyka* nie wynikają z tych prac, ale są potrzebne d
 
 12. **Mierzyć czas trenowania, czas wnioskowania i pamięć.** Zmierzyć szybkość Toto już w pilotażu: może być ponad 20× wolniejszy od innych modeli. (Olive: 123 s wobec 5 s na 1000 punktów; TAB: dokładność trzeba rozpatrywać łącznie z czasem i pamięcią)
 
-### Analiza i raport
-15. **Ograniczenia:** jeden główny zbiór danych, wątpliwe etykiety w części SMD, możliwa obecność SMD w danych pretreningowych modeli. Sprawdzić w dokumentacji TiRex-2 i Toto 2.0, na jakich zbiorach były pretrenowane; jeśli użyto SMD, wyniki na nim nie są w pełni zero-shot. (Zhu oznaczają dwa jednowymiarowe szeregi pochodzące z SMD w TSB-AD-U, o numerach 68 i 74, jako źle oznaczone, i sprawdzili zanieczyszczenie danych pretreningowych dla MOMENT)
+### Ograniczenia
+Jeden główny zbiór danych, wątpliwe etykiety w części SMD, możliwa obecność SMD w danych pretreningowych modeli. Sprawdzić w dokumentacji TiRex-2 i Toto 2.0, na jakich zbiorach były pretrenowane; jeśli użyto SMD, wyniki na nim nie są w pełni zero-shot. (Zhu oznaczają dwa jednowymiarowe szeregi pochodzące z SMD w TSB-AD-U, o numerach 68 i 74, jako źle oznaczone, i sprawdzili zanieczyszczenie danych pretreningowych dla MOMENT)
 
 ### Możliwe rozszerzenia projektu
 
