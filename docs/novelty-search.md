@@ -1,6 +1,6 @@
 # Novelty search: TiRex / Toto + anomaly detection
 
-Item 1 for consultation 1 (23.10.2026). Searched on 21.10.2026: arXiv, Google Scholar (by hand), OpenAlex, web search, GitHub.
+Searched on 21.10.2026: arXiv, Google Scholar (by hand), OpenAlex, web search, GitHub.
 
 ## Short answer
 
@@ -8,7 +8,8 @@ We did not identify a published study with our exact experimental setup. Close w
 
 - **TiRex-2**: no published anomaly detection evaluation identified in our search.
 - **First TiRex**: one anomaly detection study found (IBM), on other data.
-- **Toto / Toto 2.0**: used for anomalies in drilling, spacecraft and one storage cluster; we found no comparison with per-server LSTM/GRU and no cold-start study.
+- **Toto / Toto 2.0**: used for anomalies in drilling, spacecraft and one storage cluster, and the first Toto was checked qualitatively on multivariate data (Zhu); we found no comparison with per-server LSTM/GRU and no cold-start study.
+- **Pretrained vs. trained models**: such comparisons exist (TAB, including SMD and LSTM), but with older models and without varying the training history. Our novelty is therefore the cold-start crossover.
 
 ## Closest papers
 

@@ -1,6 +1,6 @@
 # Analiza nowości: TiRex / Toto + wykrywanie anomalii
 
-Punkt 1 na konsultację 1 (23.10.2026). Wyszukiwanie z 21.10.2026: arXiv, Google Scholar (ręcznie), OpenAlex, wyszukiwarka internetowa, GitHub.
+Wyszukiwanie z 21.10.2026: arXiv, Google Scholar (ręcznie), OpenAlex, wyszukiwarka internetowa, GitHub.
 
 ## Krótka odpowiedź
 
@@ -8,7 +8,8 @@ Nie znaleźliśmy opublikowanej pracy o dokładnie takim układzie eksperymentó
 
 - **TiRex-2**: w naszym wyszukiwaniu nie znaleźliśmy opublikowanej oceny w wykrywaniu anomalii.
 - **Pierwszy TiRex**: znaleźliśmy jedną pracę o wykrywaniu anomalii (IBM), na innych danych.
-- **Toto / Toto 2.0**: używane do wykrywania anomalii w danych z wierceń, sond kosmicznych i jednego klastra pamięci masowej; nie znaleźliśmy porównania z LSTM/GRU trenowanymi dla każdego serwera ani badania zimnego startu (cold start).
+- **Toto / Toto 2.0**: używane do wykrywania anomalii w danych z wierceń, sond kosmicznych i jednego klastra pamięci masowej, a pierwszy Toto sprawdzono jakościowo na danych wielowymiarowych (Zhu); nie znaleźliśmy porównania z LSTM/GRU trenowanymi dla każdego serwera ani badania zimnego startu (cold start).
+- **Modele wstępnie wytrenowane a trenowane**: takie porównania już istnieją (TAB, także na SMD i z LSTM), ale ze starszymi modelami i bez zmiany ilości historii treningowej. Dlatego naszą nowością jest punkt przecięcia przy zimnym starcie.
 
 ## Najbliższe prace
 
