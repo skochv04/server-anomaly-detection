@@ -42,7 +42,7 @@ The scores are compared with the experts' marks using VUS-PR, the main measure i
 | Last-3 | 0.152 | 0.223 | 0.02 s |
 | Moving-window variance | 0.375 | 0.493 | 0.02 s |
 
-The simplest formula, moving-window variance, did best and scored about seven times higher than Isolation Forest. This agrees with Zhu et al. (ICLR 2026), who found that pretrained models are often no better than such simple formulas. TiRex-2 and Toto will therefore need to score above 0.375 on this server to be useful.
+The simplest formula, moving-window variance, did best and scored about seven times higher than Isolation Forest. Zhu et al. (ICLR 2026) found that older pretrained models were not significantly better than such simple formulas, so TiRex-2 and Toto will need to score above 0.375 on this server to be useful.
 
 ## Limitations of the pilot
 
