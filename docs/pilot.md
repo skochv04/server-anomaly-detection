@@ -26,9 +26,9 @@ Moving-window variance looks at the last $w = 30$ minutes and measures how much 
 
 $$s_t = \frac{1}{38} \sum_{j=1}^{38} \mathrm{Var}\left( x_{t-w+1,j}, \dots, x_{t,j} \right)$$
 
-Isolation Forest is a classical machine learning method. It builds random trees that split the data and gives a high score to minutes that can be separated from the rest with only a few splits, because such minutes are unusual. It is fitted on the data within a few seconds.
+Isolation Forest is a classical machine learning method. It builds random trees that split the data and gives a high score to minutes that can be separated from the rest with only a few splits, because such minutes are unusual. We use the TSB-AD implementation, which looks at 30-minute windows and normalizes them itself. Its default setting lets each tree see only one of the 1,140 window values (30 minutes × 38 metrics), which gave poor and unstable results, so we let the trees use all of them. Because the trees are random, we ran it with five different random seeds and report the mean.
 
-Before applying the methods, all 38 metrics were brought to the same scale, using the mean and standard deviation of the training part.
+For Last-3 and the moving-window variance, all 38 metrics were first brought to the same scale, using the mean and standard deviation of the training part.
 
 ## Evaluation
 
@@ -38,11 +38,13 @@ The scores are compared with the experts' marks using VUS-PR, the main measure i
 
 | Method | VUS-PR | F1 | Time |
 |---|---|---|---|
-| Isolation Forest | 0.056 | 0.100 | 2.4 s |
+| Isolation Forest (mean of 5 seeds) | 0.313 ± 0.031 | 0.457 | 1.1 s |
 | Last-3 | 0.152 | 0.223 | 0.02 s |
 | Moving-window variance | 0.375 | 0.493 | 0.02 s |
 
-The simplest formula, moving-window variance, did best and scored about seven times higher than Isolation Forest. Zhu et al. (ICLR 2026) found that older pretrained models were not significantly better than such simple formulas, so TiRex-2 and Toto will need to score above 0.375 on this server to be useful.
+Moving-window variance and Isolation Forest reach a similar level, while Last-3 is clearly weaker. The difference between the first two is small compared with how much Isolation Forest changes from seed to seed, so on one server we cannot say which of them is better. Zhu et al. (ICLR 2026) found that older pretrained models were not significantly better than such simple formulas, so TiRex-2 and Toto will need to score above roughly 0.3 to 0.375 on this server to be useful.
+
+In an earlier version of the pilot, Isolation Forest scored only 0.056. That was caused by the one-feature-per-tree default and by scaling the data before passing it to a method that normalizes it again. A single run on a single server can therefore be misleading, which is why the full evaluation will use several seeds and all servers.
 
 ## Limitations of the pilot
 
