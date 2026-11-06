@@ -44,8 +44,6 @@ The scores are compared with the experts' marks using VUS-PR, the main measure i
 
 Moving-window variance and Isolation Forest reach a similar level, while Last-3 is clearly weaker. The difference between the first two is small compared with how much Isolation Forest changes from seed to seed, so on one server we cannot say which of them is better. Zhu et al. (ICLR 2026) found that older pretrained models were not significantly better than such simple formulas, so TiRex-2 and Toto will need to score above roughly 0.3 to 0.375 on this server to be useful.
 
-In an earlier version of the pilot, Isolation Forest scored only 0.056. That was caused by the one-feature-per-tree default and by scaling the data before passing it to a method that normalizes it again. A single run on a single server can therefore be misleading, which is why the full evaluation will use several seeds and all servers.
-
 ## Limitations of the pilot
 
 The F1 values use a threshold chosen on the test part, which is not allowed in the final evaluation. There, the threshold will be taken from the training part only.
