@@ -24,7 +24,7 @@ $$s_t = \frac{1}{38} \sum_{j=1}^{38} \left( x_{t,j} - \frac{x_{t-1,j} + x_{t-2,j
 
 Moving-window variance looks at the last $w = 30$ minutes and measures how much the values jump around. A calm period gives a low score, an unstable one a high score:
 
-$$s_t = \frac{1}{38} \sum_{j=1}^{38} \operatorname{Var}\left( x_{t-w+1,j}, \dots, x_{t,j} \right)$$
+$$s_t = \frac{1}{38} \sum_{j=1}^{38} \mathrm{Var}\left( x_{t-w+1,j}, \dots, x_{t,j} \right)$$
 
 Isolation Forest is a classical machine learning method. It builds random trees that split the data and gives a high score to minutes that can be separated from the rest with only a few splits, because such minutes are unusual. It is fitted on the data within a few seconds.
 
