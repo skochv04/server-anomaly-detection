@@ -67,9 +67,10 @@ Tested on Windows 11 with Python 3.12. The virtual environment and the data are 
    python -m venv .venv
    .venv\Scripts\python -m pip install --upgrade pip
    .venv\Scripts\python -m pip install -r requirements.txt
+   .venv\Scripts\python -m pip install --no-deps TSB-AD==1.5
    ```
 
-   TSB-AD declares `numpy<2.0`, while tirex-2 installs numpy 2. pip prints a dependency warning, but TSB-AD works with numpy 2 in our tests. Its deep models still use the removed `np.Inf`, so scripts that use them set `np.Inf = np.inf` before importing TSB-AD.
+   TSB-AD declares `numpy<2.0`, while tirex-2 needs numpy 2, so pip refuses to install both together. `requirements.txt` therefore lists the dependencies of TSB-AD directly, and TSB-AD itself is installed with `--no-deps`. It works with numpy 2 in our tests. Its deep models still use the removed `np.Inf`, so `common.py` sets `np.Inf = np.inf` before importing TSB-AD.
 
 2. Install PyTorch with GPU support (optional, but TiRex-2 is very slow on CPU: about 500 s per 1,000 points). With an NVIDIA GPU, check the CUDA version with `nvidia-smi` and install the matching build from [pytorch.org](https://pytorch.org/get-started/locally/), for example:
 
@@ -114,6 +115,7 @@ python -m venv .venv
 source .venv/bin/activate
 pip install --no-cache-dir torch==2.14.1 --index-url https://download.pytorch.org/whl/cu126
 pip install --no-cache-dir -r requirements.txt
+pip install --no-cache-dir --no-deps TSB-AD==1.5
 export HF_HOME=$SCRATCH/hf
 python -c "from huggingface_hub import snapshot_download; snapshot_download('NX-AI/TiRex-2')"
 mkdir -p data logs
