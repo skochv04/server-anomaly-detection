@@ -9,7 +9,7 @@ Team: Stas Kochevenko, Diana Hunchak.
 ## Research questions
 
 1. **Main.** Does a pretrained model with no training on our data (zero-shot) find anomalies in server metrics as well as LSTM/GRU trained separately for each server?
-2. **Cold start.** How much history does LSTM/GRU need to catch up with a zero-shot model? We train on 10 / 25 / 50 / 100% of the train split.
+2. **Cold start.** How much history does LSTM/GRU need to catch up with a zero-shot model? We train on growing amounts of the train split.
 3. **Domain.** Does pretraining on server metrics help? Toto 2.0 (Datadog, observability data) vs. TiRex-2 (general-purpose).
 4. **Operations.** How many false alarms does each model raise when the threshold is chosen without labels, as in production?
 
@@ -23,6 +23,7 @@ server metrics → model forecast → forecast error → anomaly score → thres
 
 | Model | Mode |
 |---|---|
+| Last-3, window variance | one-line baselines, no training |
 | Isolation Forest | baseline, no temporal context |
 | LSTM | trained per server |
 | GRU | trained per server |
@@ -43,12 +44,13 @@ server metrics → model forecast → forecast error → anomaly score → thres
 | When | To do | To show |
 |---|---|---|
 | **23.10** | Novelty search: TiRex / Toto + anomaly detection (results). Research questions and plan | Plan and research questions |
-| **06.11** | Install TSB-AD, run Isolation Forest and TiRex-2 on **one** server | First results on one server |
-| **27.11** | Add LSTM, GRU, Toto. Run everything on **3–5** servers | First comparison table |
-| **11.12** | Run everything on **all** servers. Cold start: train LSTM/GRU on 10 / 25 / 50 / 100% of the data. Compare Toto vs. TiRex-2 and count false alarms | Full results and plots |
-| **08.01** | Finish the report (draft by ~20.12) | Submission |
+| **06.11** | Install TSB-AD, run Isolation Forest, Last-3 and window variance on **one** server | First results on one server |
+| **27.11** | TiRex-2, Toto 2.0, LSTM, GRU and the simple baselines on **all 22** servers. TiRex-2 and Toto run on PLGrid Ares | First comparison table: quality and time |
+| **11.12** | Cold start: train LSTM/GRU on growing amounts of history and compare them with the best method that needs no training. Label-free threshold from the train part and false alarms counted as events, for all models | Cold-start plot with the crossover point, false-alarm table |
+| **~20.12** | Analysis: why a model wins or loses on particular servers, forecast errors on normal vs. anomalous windows, whether TiRex-2 and Toto adapt to long anomalies. Cost table (training time, inference time, memory). Check whether SMD is in the pretraining data of TiRex-2 and Toto. Report draft in Polish | Report draft |
+| **08.01** | Revisions after feedback, final plots and conclusions | Submission |
 
-**Optional**, only if everything is ready by 11.12: a second dataset (OS-Metrics), Chronos-2 as a third pretrained model, fine-tuning, a publication.
+**Optional**, only if the core is done: a second dataset (OS-Metrics), Chronos-2 as a third pretrained model, several forecast horizons, fine-tuning, a publication.
 
 ## Status
 
@@ -56,6 +58,20 @@ Consultation 1 (23.10.2026): plan and novelty check.
 
 - [x] Novelty search: has anyone evaluated TiRex / Toto for anomaly detection? → [`docs/novelty-search.md`](docs/novelty-search.md)
 - [x] Project plan (above)
+
+Consultation 2 (06.11.2026): pilot on one server.
+
+- [x] TSB-AD installed, simple baselines on server id 1 → [`docs/pilot.md`](docs/pilot.md)
+
+Consultation 3 (27.11.2026): all 22 servers.
+
+- [x] Isolation Forest, Last-3, window variance and LSTM → [`results/local.csv`](results/local.csv)
+- [x] TiRex-2 zero-shot on Ares → [`results/tirex2.csv`](results/tirex2.csv)
+- [x] Description of these runs → [`docs/all-servers.md`](docs/all-servers.md)
+- [ ] Toto 2.0 zero-shot on Ares
+- [ ] GRU
+- [ ] Comparison table of all methods
+- [ ] Agree with the supervisor how to define the amounts of history for the cold start (train parts are only 500–7,180 points long)
 
 ## Setup
 
@@ -164,5 +180,6 @@ server-anomaly-detection/
 └── docs/
     ├── novelty-search.md
     ├── novelty-search.pl.md
-    └── pilot.md        # pilot results
+    ├── pilot.md        # pilot results
+    └── all-servers.md  # results on all 22 servers
 ```
