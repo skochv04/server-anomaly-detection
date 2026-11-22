@@ -138,7 +138,13 @@ sbatch -A <grant>-gpu ares/tirex.slurm
 squeue --me
 ```
 
-Servers that already have a score file are skipped, so a failed job can simply be submitted again. Copy the results back to the laptop with `scp -r` from `$SCRATCH/server-anomaly-detection/scores/tirex2`. Files in `$SCRATCH` are deleted after a period without use.
+Servers that already have a score file are skipped, so a failed job can simply be submitted again. Copy the results back to the laptop with `scp -r` from `$SCRATCH/server-anomaly-detection/scores/tirex2`. Files in `$SCRATCH` are deleted after a period without use. On the full run each server took about 6 minutes on one V100.
+
+Then build the result table on the laptop:
+
+```
+.venv\Scripts\python collect_scores.py TiRex-2 --scores scores/tirex2 --out results/tirex2.csv
+```
 
 ## Repository structure
 
@@ -149,6 +155,7 @@ server-anomaly-detection/
 ├── common.py           # data loading, scaling and evaluation shared by all scripts
 ├── run_local.py        # simple baselines and LSTM on all servers
 ├── run_tirex.py        # TiRex-2 on all servers
+├── collect_scores.py   # result table from saved per-metric errors
 ├── pilot.py            # first pilot on one server
 ├── ares/tirex.slurm    # Slurm job array for Ares
 ├── results/            # result tables
