@@ -38,6 +38,18 @@ The servers differ a lot. On one server all methods score about 0.95, on another
 
 LSTM gives almost the same result with every seed (the scores differ by about 0.005 on a server). Isolation Forest changes more, by about 0.02.
 
+## Mean or maximum over the metrics
+
+A mean over 38 metrics could hide an anomaly that shows up in only one of them. We therefore also tried the largest error among the 38 metrics instead of the mean. It made every method slightly worse:
+
+| Method | Mean over metrics | Maximum over metrics | Servers where the maximum is better |
+|---|---|---|---|
+| TiRex-2 | 0.360 | 0.344 | 3 of 22 |
+| Moving-window variance | 0.418 | 0.404 | 4 of 22 |
+| Last-3 | 0.343 | 0.333 | 6 of 22 |
+
+In SMD an anomaly usually affects several metrics at once, so the mean picks it up better, while the maximum also reacts to a jump in a single noisy metric. We keep the mean. The weaker result of TiRex-2 does not come from the way the metrics are combined.
+
 ## Results per server (VUS-PR)
 
 | Server | LSTM | Variance | TiRex-2 | Last-3 | Isolation Forest |
@@ -71,7 +83,7 @@ F1 still uses a threshold chosen on the test part. A threshold taken from the tr
 
 LSTM predicts one minute ahead, TiRex-2 ten minutes ahead. The comparison is therefore not yet made at the same forecast horizon.
 
-TiRex-2 was run with one setting only: 512 minutes of history, a 10-minute forecast and the mean over the 38 metrics.
+TiRex-2 was run with one setting only: 512 minutes of history and a 10-minute forecast.
 
 Isolation Forest is still fitted on the whole series, including the test part.
 

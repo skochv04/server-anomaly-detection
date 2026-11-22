@@ -46,11 +46,8 @@ server metrics → model forecast → forecast error → anomaly score → thres
 | **23.10** | Novelty search: TiRex / Toto + anomaly detection (results). Research questions and plan | Plan and research questions |
 | **06.11** | Install TSB-AD, run Isolation Forest, Last-3 and window variance on **one** server | First results on one server |
 | **27.11** | TiRex-2, Toto 2.0, LSTM, GRU and the simple baselines on **all 22** servers. TiRex-2 and Toto run on PLGrid Ares | First comparison table: quality and time |
-| **11.12** | Cold start: train LSTM/GRU on growing amounts of history and compare them with the best method that needs no training. Label-free threshold from the train part and false alarms counted as events, for all models | Cold-start plot with the crossover point, false-alarm table |
-| **~20.12** | Analysis: why a model wins or loses on particular servers, forecast errors on normal vs. anomalous windows, whether TiRex-2 and Toto adapt to long anomalies. Cost table (training time, inference time, memory). Check whether SMD is in the pretraining data of TiRex-2 and Toto. Report draft in Polish | Report draft |
-| **08.01** | Revisions after feedback, final plots and conclusions | Submission |
-
-**Optional**, only if the core is done: a second dataset (OS-Metrics), Chronos-2 as a third pretrained model, several forecast horizons, fine-tuning, a publication.
+| **11.12** | Cold start: retrain LSTM/GRU on only the first 250 / 500 / 1,000 / 2,000 minutes of each server and on the full history, test each on the same test part, and compare with the methods that need no training (TiRex-2, Toto, window variance). Threshold: set from the train-part scores of each model, then count on test how many anomalies are found, how many alarms are false and what share of alarms is correct (adjacent alarms = one event). Uses the saved scores, no new runs | Cold-start plot: quality vs. minutes of history, with the crossover point. Table of found anomalies and false alarms per model |
+| **08.01** | Per-server analysis: plot metrics, anomalies and scores on servers where TiRex-2 won (071, 064, 077) and lost (065, 066, 074), check whether the pretrained models adapt to long anomalies and which methods catch short vs. long ones. Same horizon: rerun TiRex-2 and Toto with a 1-minute forecast on Ares, as LSTM/GRU. Cost table: training time, inference time, memory. Check from the model documentation whether SMD was in the pretraining data of TiRex-2 and Toto | Final report with all results |
 
 ## Status
 
