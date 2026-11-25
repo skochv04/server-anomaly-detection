@@ -10,10 +10,13 @@ from common import evaluate, load_series, sliding_window, smd_files
 from TSB_AD.models.IForest import IForest
 from TSB_AD.models.LSTMAD import LSTMAD
 
+from gru_ad import GRUAD
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--data", default="data/TSB-AD-M")
 parser.add_argument("--if-seeds", type=int, default=5)
 parser.add_argument("--lstm-seeds", type=int, default=3)
+parser.add_argument("--gru-seeds", type=int, default=3)
 parser.add_argument("--scores", default="scores")
 parser.add_argument("--out", default="results/local.csv")
 args = parser.parse_args()
@@ -50,6 +53,14 @@ def lstm(data, train_len, seed):
     return clf.decision_function(data)
 
 
+def gru(data, train_len, seed):
+    torch.manual_seed(seed)
+    np.random.seed(seed)
+    clf = GRUAD(window_size=100, pred_len=1, lr=0.0008, feats=data.shape[1], batch_size=128)
+    clf.fit(data[:train_len])
+    return clf.decision_function(data)
+
+
 for path in smd_files(args.data):
     server = path.name[:3]
     raw, data, label, train_len = load_series(path)
@@ -58,6 +69,7 @@ for path in smd_files(args.data):
             ("Var", 0, lambda: window_var(data, w))]
     runs += [("IForest", s, lambda s=s: iforest(raw, w, s)) for s in range(args.if_seeds)]
     runs += [("LSTM", s, lambda s=s: lstm(data, train_len, s)) for s in range(args.lstm_seeds)]
+    runs += [("GRU", s, lambda s=s: gru(data, train_len, s)) for s in range(args.gru_seeds)]
     for method, seed, fn in runs:
         if (server, method, seed) in done_keys:
             continue
