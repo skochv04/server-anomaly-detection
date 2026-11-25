@@ -25,7 +25,7 @@ score_dir = Path(args.scores)
 score_dir.mkdir(parents=True, exist_ok=True)
 out = Path(args.out)
 out.parent.mkdir(parents=True, exist_ok=True)
-done = pd.read_csv(out) if out.exists() else pd.DataFrame(columns=["server", "method", "seed"])
+done = pd.read_csv(out, dtype={"server": str}) if out.exists() else pd.DataFrame(columns=["server", "method", "seed"])
 done_keys = set(zip(done["server"].astype(str).str.zfill(3), done["method"], done["seed"]))
 rows = done.to_dict("records")
 

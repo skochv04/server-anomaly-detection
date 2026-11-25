@@ -28,7 +28,7 @@ server metrics → model forecast → forecast error → anomaly score → thres
 | LSTM | trained per server |
 | GRU | trained per server |
 | TiRex-2 | zero-shot, xLSTM |
-| Toto 2.0 (small) | zero-shot, observability-pretrained |
+| Toto 2.0 (313M) | zero-shot, observability-pretrained |
 
 **Data:** SMD (Server Machine Dataset), cleaned version from [TSB-AD](https://github.com/TheDatumOrg/TSB-AD).
 
@@ -65,9 +65,9 @@ Consultation 3 (27.11.2026): all 22 servers.
 - [x] Isolation Forest, Last-3, window variance and LSTM → [`results/local.csv`](results/local.csv)
 - [x] TiRex-2 zero-shot on Ares → [`results/tirex2.csv`](results/tirex2.csv)
 - [x] Description of these runs → [`docs/all-servers.md`](docs/all-servers.md)
-- [ ] Toto 2.0 zero-shot on Ares
-- [ ] GRU
-- [ ] Comparison table of all methods
+- [x] GRU → [`results/local.csv`](results/local.csv)
+- [x] Toto 2.0 zero-shot on Ares → [`results/toto.csv`](results/toto.csv)
+- [x] Comparison table and figures of all methods → [`docs/all-servers.md`](docs/all-servers.md)
 - [ ] Agree with the supervisor how to define the amounts of history for the cold start (train parts are only 500–7,180 points long)
 
 ## Setup
@@ -108,7 +108,7 @@ Tested on Windows 11 with Python 3.12. The virtual environment and the data are 
    .venv\Scripts\python run_tirex.py --index 0 --max-windows 64
    ```
 
-   `run_local.py` runs Last-3, window variance, Isolation Forest and LSTM on all 22 SMD servers. It writes one row per server, method and seed to `results/local.csv` and the full anomaly scores to `scores/`. If it stops, run it again and it continues where it left off.
+   `run_local.py` runs Last-3, window variance, Isolation Forest, LSTM and GRU on all 22 SMD servers. It writes one row per server, method and seed to `results/local.csv` and the full anomaly scores to `scores/`. If it stops, run it again and it continues where it left off.
 
    `run_tirex.py` runs TiRex-2 on all servers, or on one server with `--index`. `--max-windows` makes a short speed test without saving. For every point and metric it saves the squared error of the median forecast to `scores/tirex2/`, so the way metrics are combined can be changed later without running the model again. On Windows without a C++ compiler, tirex-2 fails in `torch.compile`, so the script sets `TORCHDYNAMO_DISABLE=1`.
 
@@ -159,6 +159,45 @@ Then build the result table on the laptop:
 .venv\Scripts\python collect_scores.py TiRex-2 --scores scores/tirex2 --out results/tirex2.csv
 ```
 
+### Toto 2.0
+
+Toto 2.0 (`toto-2`) needs Python 3.12+ and `pandas<3` (through `gluonts`), while `requirements.txt` pins pandas 3, so it gets its own environment, `.venv-toto`. The Python modules on Ares put their own older packages on `PYTHONPATH`, which override the ones in the environment, so the environment must be put first:
+
+```
+cd $SCRATCH/server-anomaly-detection
+module purge
+module load numba/0.62.0-foss-2025b
+python -m venv .venv-toto
+source .venv-toto/bin/activate
+export PYTHONPATH=$VIRTUAL_ENV/lib/python3.13/site-packages:$PYTHONPATH
+pip install --no-cache-dir torch==2.14.1 --index-url https://download.pytorch.org/whl/cu126
+pip install --no-cache-dir toto-2
+grep -vE "^(tirex-2|pandas|numpy)==" requirements.txt > req-toto.txt
+pip install --no-cache-dir -r req-toto.txt
+pip install --no-cache-dir --no-deps TSB-AD==1.5
+export HF_HOME=$SCRATCH/hf
+python -c "from huggingface_hub import snapshot_download; snapshot_download('Datadog/Toto-2.0-313m')"
+```
+
+`ares/toto.slurm` sets the same `PYTHONPATH`. Test and full run, as for TiRex-2:
+
+```
+sbatch -A <grant>-gpu --array=0 --time=00:20:00 ares/toto.slurm --max-windows 64
+sbatch -A <grant>-gpu ares/toto.slurm
+```
+
+Each server took 84-117 s on one V100. Copy `scores/toto` back to the laptop and build the table:
+
+```
+.venv\Scripts\python collect_scores.py Toto --scores scores/toto --out results/toto.csv
+```
+
+The figures in `docs/figures/` are made from the result tables:
+
+```
+.venv\Scripts\python plots.py
+```
+
 ## Repository structure
 
 ```
@@ -166,11 +205,15 @@ server-anomaly-detection/
 ├── README.md
 ├── requirements.txt
 ├── common.py           # data loading, scaling and evaluation shared by all scripts
-├── run_local.py        # simple baselines and LSTM on all servers
+├── run_local.py        # simple baselines, LSTM and GRU on all servers
+├── gru_ad.py           # GRU forecaster (TSB-AD LSTM with GRU layers)
 ├── run_tirex.py        # TiRex-2 on all servers
+├── run_toto.py         # Toto 2.0 on all servers
+├── plots.py            # figures from the result tables
 ├── collect_scores.py   # result table from saved per-metric errors
 ├── pilot.py            # first pilot on one server
 ├── ares/tirex.slurm    # Slurm job array for Ares
+├── ares/toto.slurm     # the same for Toto 2.0
 ├── results/            # result tables
 ├── scores/             # anomaly scores (not in git)
 ├── data/               # TSB-AD-M, downloaded locally (not in git)
@@ -178,5 +221,6 @@ server-anomaly-detection/
     ├── novelty-search.md
     ├── novelty-search.pl.md
     ├── pilot.md        # pilot results
-    └── all-servers.md  # results on all 22 servers
+    ├── all-servers.md  # results on all 22 servers
+    └── figures/        # figures made by plots.py
 ```
