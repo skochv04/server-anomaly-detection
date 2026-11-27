@@ -68,42 +68,22 @@ This was not yet computed for Toto 2.0. In SMD an anomaly usually affects severa
 
 ![VUS-PR per server and method](figures/vus_pr_heatmap.png)
 
+Each row is one server and each column one method. The number in a cell is the VUS-PR, and a darker colour means a higher score.
+
 ## Comparison with earlier work
 
 | Paper | What they found | What we see |
 |---|---|---|
-| Zhu et al. (ICLR 2026) | Pretrained models are not better than one-line baselines such as the moving-window variance | The same, with newer models and 38 metrics instead of one: the variance is ahead of both TiRex-2 and Toto 2.0 |
-| Yum (2026) | A simple baseline beat Toto on TSB-AD-M (0.29 vs. 0.14) | The same direction. The numbers cannot be compared directly: he used all datasets of TSB-AD-M and his scores could use future values, we use SMD only and score online |
-| Qiu et al. (TAB, PVLDB 2025) | Trained models beat pretrained ones used without training, no method is the best everywhere, simple methods are among the strongest | All three hold. The best method changes from server to server |
-| Sengupta et al. (2026) | A small model almost matches a large pretrained one at a much lower cost | A small LSTM is better than pretrained models with hundreds of millions of parameters |
-| Olive et al. (2026) | The first Toto is slow, 123 s per 1,000 points | Different: Toto 2.0 took about 4 s per 1,000 points on one V100 and was faster than TiRex-2. They used an older model version and other hardware, so this is not a contradiction |
+| Zhu et al. (ICLR 2026) | Pretrained models are not better than simple methods such as the moving-window variance | The same: the variance is ahead of TiRex-2 and Toto 2.0 |
+| Yum (2026) | A simple method beat Toto on TSB-AD-M | The same direction, but other data and settings, so we do not compare the numbers |
+| Qiu et al. (TAB, PVLDB 2025) | Trained models beat pretrained ones, no method wins everywhere | The same, the best method changes from server to server |
+| Sengupta et al. (2026) | A small model almost matches a large one at a lower cost | A small LSTM is better than models with hundreds of millions of parameters |
+| Olive et al. (2026) | The first Toto is slow, 123 s per 1,000 points | Different: Toto 2.0 took about 4 s, but it is a newer version on other hardware |
 
-New in our results:
+## Next steps
 
-| Result | Why it matters |
-|---|---|
-| TiRex-2 performs at the level of Toto 2.0 | In our search we found no earlier evaluation of TiRex-2 for anomaly detection |
-| Toto 2.0 is not better than TiRex-2 on SMD | Toto was pretrained on observability data, close to server metrics, but this gave it no advantage |
-| Both pretrained models beat the trained ones on the same six servers | Whether a pretrained model pays off seems to depend more on the server than on the model |
+LSTM and GRU trained on the full history are better than TiRex-2 and Toto 2.0. The next experiments check whether this still holds when they get only a little history, and how the methods behave with a fixed alarm threshold.
 
-We have not yet checked whether SMD was part of the pretraining data of either model.
+Cold start. LSTM and GRU are trained again on only the first 250, 500, 1,000 and 2,000 minutes of each server and on the full history, and every version is tested on the same test part. They are compared with the methods that need no training: TiRex-2, Toto 2.0 and the moving-window variance. The result is a plot of quality against minutes of history, with the point where the trained models catch up. History is given in minutes rather than in percent, because the training parts are short: 10% of the shortest one would be only 50 minutes, less than the 100 minutes LSTM looks at.
 
-## Limitations
-
-F1 still uses a threshold chosen on the test part. A threshold taken from the training part, and the number of false alarms it produces, are the next step.
-
-LSTM and GRU predict one minute ahead, TiRex-2 and Toto 2.0 ten minutes ahead. The comparison is therefore not yet made at the same forecast horizon.
-
-TiRex-2 and Toto 2.0 were run with one setting only: 512 minutes of history and a 10-minute forecast. Toto was run in one model size (313M).
-
-Isolation Forest is still fitted on the whole series, including the test part.
-
-We have not yet checked whether SMD was part of the data TiRex-2 and Toto 2.0 were trained on. If it was, their results here are not fully zero-shot.
-
-## What this means for the plan
-
-LSTM and GRU trained on the full history are better than TiRex-2 and Toto 2.0. The cold-start experiment will show whether this still holds when LSTM gets only a little history. Because the moving-window variance also needs no training and is better than both pretrained models, LSTM and GRU with little history should be compared with all three.
-
-The training parts are short, so the amounts of history for the cold start are better given in minutes than in percent. With 10% of the shortest training part, LSTM would get 50 minutes, less than the 100 it looks at.
-
-Next come the cold start and the threshold from the training part with the false alarms.
+Threshold and false alarms. For each model the alarm threshold is set from its scores on the training part. On the test part we then count how many anomalies are found, how many alarms are false and what share of alarms is correct. Adjacent alarm minutes count as one event. This uses the saved scores, so no model has to be run again. The result is a table of found anomalies and false alarms for every model.
