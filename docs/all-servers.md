@@ -44,7 +44,7 @@ In this figure each pretrained model is compared with the better of LSTM and GRU
 
 LSTM and GRU have the highest mean, and they are almost equal: GRU scored higher than LSTM on 8 of the 22 servers, and on any server the two differ by at most 0.034. The moving-window variance is close behind them, wins on the most servers and has the best average place. It needs no training and is computed almost instantly.
 
-Neither pretrained model reached them. TiRex-2 and Toto 2.0 have similar means (0.360 and 0.352), Toto scored higher than TiRex-2 on 7 of the 22 servers, and on a server the two differ by 0.018 on average. So pretraining on observability data did not give Toto an advantage on SMD. TiRex-2 scored higher than the better of LSTM and GRU on 6 servers (064, 067, 068, 071, 077, 078), Toto on the same 6 and on 058, but neither was the best method on any server. This agrees with Zhu et al. (ICLR 2026) and Yum (2026), who also found that pretrained models did not beat simple baselines.
+Neither pretrained model reached them. TiRex-2 and Toto 2.0 have similar means (0.360 and 0.352), Toto scored higher than TiRex-2 on 7 of the 22 servers, and on a server the two differ by 0.018 on average. So pretraining on observability data did not give Toto an advantage on SMD. TiRex-2 scored higher than the better of LSTM and GRU on 6 servers (064, 067, 068, 071, 077, 078), Toto on the same 6 and on 058, but neither was the best method on any server.
 
 The times are not directly comparable: LSTM ran on a laptop GPU, GRU on a different laptop without a GPU, and the pretrained models on Ares, where the 22 servers ran in parallel. On a laptop GPU TiRex-2 took about an hour per server.
 
@@ -66,32 +66,27 @@ This was not yet computed for Toto 2.0. In SMD an anomaly usually affects severa
 
 ## Results per server (VUS-PR)
 
-| Server | LSTM | GRU | Variance | TiRex-2 | Toto 2.0 | Last-3 | Isolation Forest |
-|---|---|---|---|---|---|---|---|
-| 057 | 0.347 | 0.343 | 0.375 | 0.189 | 0.173 | 0.152 | 0.313 |
-| 058 | 0.528 | 0.533 | 0.542 | 0.529 | 0.538 | 0.583 | 0.647 |
-| 059 | 0.455 | 0.451 | 0.289 | 0.314 | 0.361 | 0.383 | 0.329 |
-| 060 | 0.426 | 0.460 | 0.657 | 0.293 | 0.207 | 0.216 | 0.079 |
-| 061 | 0.216 | 0.212 | 0.276 | 0.164 | 0.173 | 0.150 | 0.365 |
-| 062 | 0.883 | 0.881 | 0.695 | 0.867 | 0.857 | 0.807 | 0.259 |
-| 063 | 0.399 | 0.382 | 0.427 | 0.223 | 0.218 | 0.234 | 0.282 |
-| 064 | 0.272 | 0.266 | 0.384 | 0.390 | 0.353 | 0.405 | 0.191 |
-| 065 | 0.733 | 0.734 | 0.224 | 0.231 | 0.227 | 0.211 | 0.248 |
-| 066 | 0.669 | 0.669 | 0.236 | 0.138 | 0.126 | 0.111 | 0.440 |
-| 067 | 0.033 | 0.032 | 0.097 | 0.060 | 0.057 | 0.069 | 0.061 |
-| 068 | 0.406 | 0.407 | 0.558 | 0.488 | 0.464 | 0.455 | 0.260 |
-| 069 | 0.289 | 0.273 | 0.412 | 0.242 | 0.240 | 0.272 | 0.259 |
-| 070 | 0.348 | 0.347 | 0.352 | 0.326 | 0.308 | 0.299 | 0.123 |
-| 071 | 0.382 | 0.389 | 0.681 | 0.654 | 0.629 | 0.461 | 0.245 |
-| 072 | 0.707 | 0.714 | 0.629 | 0.564 | 0.593 | 0.618 | 0.427 |
-| 073 | 0.292 | 0.292 | 0.208 | 0.267 | 0.268 | 0.196 | 0.270 |
-| 074 | 0.585 | 0.584 | 0.493 | 0.236 | 0.228 | 0.093 | 0.265 |
-| 075 | 0.659 | 0.658 | 0.164 | 0.234 | 0.239 | 0.248 | 0.106 |
-| 076 | 0.952 | 0.952 | 0.953 | 0.936 | 0.932 | 0.938 | 0.967 |
-| 077 | 0.185 | 0.187 | 0.419 | 0.417 | 0.379 | 0.434 | 0.209 |
-| 078 | 0.095 | 0.095 | 0.130 | 0.164 | 0.176 | 0.212 | 0.200 |
-
 ![VUS-PR per server and method](figures/vus_pr_heatmap.png)
+
+## Comparison with earlier work
+
+| Paper | What they found | What we see |
+|---|---|---|
+| Zhu et al. (ICLR 2026) | Pretrained models are not better than one-line baselines such as the moving-window variance | The same, with newer models and 38 metrics instead of one: the variance is ahead of both TiRex-2 and Toto 2.0 |
+| Yum (2026) | A simple baseline beat Toto on TSB-AD-M (0.29 vs. 0.14) | The same direction. The numbers cannot be compared directly: he used all datasets of TSB-AD-M and his scores could use future values, we use SMD only and score online |
+| Qiu et al. (TAB, PVLDB 2025) | Trained models beat pretrained ones used without training, no method is the best everywhere, simple methods are among the strongest | All three hold. The best method changes from server to server |
+| Sengupta et al. (2026) | A small model almost matches a large pretrained one at a much lower cost | A small LSTM is better than pretrained models with hundreds of millions of parameters |
+| Olive et al. (2026) | The first Toto is slow, 123 s per 1,000 points | Different: Toto 2.0 took about 4 s per 1,000 points on one V100 and was faster than TiRex-2. They used an older model version and other hardware, so this is not a contradiction |
+
+New in our results:
+
+| Result | Why it matters |
+|---|---|
+| TiRex-2 performs at the level of Toto 2.0 | In our search we found no earlier evaluation of TiRex-2 for anomaly detection |
+| Toto 2.0 is not better than TiRex-2 on SMD | Toto was pretrained on observability data, close to server metrics, but this gave it no advantage |
+| Both pretrained models beat the trained ones on the same six servers | Whether a pretrained model pays off seems to depend more on the server than on the model |
+
+We have not yet checked whether SMD was part of the pretraining data of either model.
 
 ## Limitations
 
