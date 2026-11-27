@@ -80,6 +80,15 @@ Każdy wiersz to jeden serwer, a każda kolumna jedna metoda. Liczba w komórce 
 | Sengupta i in. (2026) | Mały model prawie dorównuje dużemu przy niższym koszcie | Mała sieć LSTM jest lepsza od modeli z setkami milionów parametrów |
 | Olive i in. (2026) | Pierwsza wersja Toto jest wolna, 123 s na 1 000 punktów | Inaczej: Toto 2.0 potrzebował około 4 s, ale to nowsza wersja i inny sprzęt |
 
+## Wnioski
+
+Tych wyników nie znaleźliśmy w przejrzanych pracach:
+
+1. TiRex-2 użyty do wykrywania anomalii działa na SMD na poziomie Toto 2.0, poniżej LSTM, GRU i wariancji w oknie.
+2. Toto 2.0, wstępnie trenowany na danych z monitoringu systemów, nie jest lepszy od ogólnego TiRex-2 na metrykach serwerów.
+3. W porównaniu z LSTM i GRU trenowanymi na każdym serwerze oba modele wstępnie wytrenowane z 2026 roku przegrywają średnio, ale wygrywają na tych samych sześciu serwerach, więc to, czy się opłacają, zależy bardziej od serwera niż od modelu.
+4. Toto 2.0 potrzebuje około 4 s na 1 000 punktów na jednej karcie V100, znacznie mniej niż podawano dla pierwszej wersji Toto.
+
 ## Dalsze plany
 
 LSTM i GRU trenowane na pełnej historii są lepsze niż TiRex-2 i Toto 2.0. Kolejne eksperymenty sprawdzą, czy tak zostaje, gdy dostają tylko niewiele historii, oraz jak metody działają przy stałym progu alarmu.

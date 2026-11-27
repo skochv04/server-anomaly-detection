@@ -80,6 +80,15 @@ Each row is one server and each column one method. The number in a cell is the V
 | Sengupta et al. (2026) | A small model almost matches a large one at a lower cost | A small LSTM is better than models with hundreds of millions of parameters |
 | Olive et al. (2026) | The first Toto is slow, 123 s per 1,000 points | Different: Toto 2.0 took about 4 s, but it is a newer version on other hardware |
 
+## Conclusions
+
+These results were not reported in the works we reviewed:
+
+1. TiRex-2 used for anomaly detection performs at the level of Toto 2.0 on SMD, below LSTM, GRU and the moving-window variance.
+2. Toto 2.0, pretrained on observability data, is not better than the general-purpose TiRex-2 on server metrics.
+3. Compared with LSTM and GRU trained on each server, both 2026 pretrained models lose on average but win on the same six servers, so whether they pay off depends more on the server than on the model.
+4. Toto 2.0 needs about 4 s per 1,000 points on one V100, much less than reported for the first Toto.
+
 ## Next steps
 
 LSTM and GRU trained on the full history are better than TiRex-2 and Toto 2.0. The next experiments check whether this still holds when they get only a little history, and how the methods behave with a fixed alarm threshold.
