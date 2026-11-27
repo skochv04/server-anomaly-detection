@@ -49,7 +49,6 @@ for path in files:
     t0 = time.time()
     for i in range(0, len(starts), args.batch):
         chunk = starts[i:i + args.batch]
-        # Short histories are left-padded and masked as not observed.
         target = np.zeros((len(chunk), n_var, args.context), dtype=np.float32)
         mask = np.zeros(target.shape, dtype=bool)
         for j, s in enumerate(chunk):

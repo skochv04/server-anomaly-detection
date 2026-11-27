@@ -36,8 +36,6 @@ class GRUModel(nn.Module):
 
 
 class GRUAD(LSTMAD):
-    # Not calling LSTMAD.__init__: it builds the optimizer on an LSTM model.
-
     def __init__(self, window_size=100, pred_len=1, batch_size=128, epochs=50, lr=0.0008,
                  feats=1, hidden_dim=20, num_layer=2, validation_size=0.2):
         self.y_hats = None

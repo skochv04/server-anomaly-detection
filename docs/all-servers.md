@@ -14,7 +14,7 @@ Last-3, moving-window variance and Isolation Forest work as in the pilot. The va
 
 LSTM is the TSB-AD implementation. It looks at the last 100 minutes and predicts the values of all 38 metrics in the next minute. It is trained on the training part of the same server only, and part of that data is held out to stop training once the model no longer improves. The score of a minute is the prediction error: the squared difference between the predicted and the real value, averaged over the 38 metrics. We trained it with three random seeds.
 
-GRU is the same model with the two LSTM layers replaced by GRU layers of the same size (`gru_ad.py`). TSB-AD has no GRU, so we copied its LSTM model and changed only the layer type. Window, forecast length, training settings and the score are the same as for LSTM, also with three random seeds.
+GRU is the same model with the two LSTM layers replaced by GRU layers of the same size. TSB-AD has no GRU, so we copied its LSTM model and changed only the layer type. Window, forecast length, training settings and the score are the same as for LSTM, also with three random seeds.
 
 TiRex-2 is a pretrained forecasting model, and its weights are not changed. It receives up to 512 previous minutes and forecasts the next 10 minutes, then moves 10 minutes forward and forecasts again. At the start of a series it gets as much history as exists. The model gives a range of possible values, and we take the middle one (the median). The score is computed in the same way as for LSTM: the squared error of the forecast, averaged over the 38 metrics. We keep the error of every metric separately, so other ways of combining them can be tested without running the model again.
 
@@ -36,11 +36,11 @@ As in the pilot, the main measure is VUS-PR on the test part, and F1 is taken at
 | Last-3 | 0.343 | 0.260 | 3 | 4.41 | 0.393 | below 0.01 s |
 | Isolation Forest (5 seeds) | 0.298 | 0.260 | 3 | 4.55 | 0.453 | 3 s, CPU |
 
-The figures are made from the result tables with `plots.py`:
-
 ![VUS-PR per method](figures/vus_pr_by_method.png)
 
 ![Zero-shot vs. trained](figures/zero_shot_vs_trained.png)
+
+In this figure each pretrained model is compared with the better of LSTM and GRU on the same server. Taking the better of two trained models slightly favours them. The effect is small, because LSTM and GRU differ by less than 0.01 on 19 of the 22 servers, so the picture would be almost the same with either of them alone.
 
 LSTM and GRU have the highest mean, and they are almost equal: GRU scored higher than LSTM on 8 of the 22 servers, and on any server the two differ by at most 0.034. The moving-window variance is close behind them, wins on the most servers and has the best average place. It needs no training and is computed almost instantly.
 
